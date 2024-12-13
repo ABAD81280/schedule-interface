@@ -90,107 +90,142 @@ const AddTeacher = () => {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Add Teacher</h1>
-      {message && (
-        <div
-          style={{
-            color: message.type === "success" ? "green" : "red",
-            marginBottom: "10px",
-          }}
-        >
-          {message.text}
-        </div>
-      )}
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: "10px" }}>
-          <label>Teacher ID:</label>
-          <input
-            type="text"
-            name="id"
-            value={teacher.id}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div style={{ marginBottom: "10px" }}>
-          <label>Name:</label>
-          <input
-            type="text"
-            name="name"
-            value={teacher.name}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div style={{ marginBottom: "10px" }}>
-          <label>Academic Number:</label>
-          <input
-            type="text"
-            name="academicNumber"
-            value={teacher.academicNumber}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div style={{ marginBottom: "10px", position: "relative" }}>
-          <label>Subjects:</label>
+    <div style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      minHeight: "100vh",
+      padding: "20px",
+      backgroundColor: "#2f3e46",
+    }}>
+      <div style={{
+        backgroundColor: "#2f3e46",
+        padding: "20px",
+        borderRadius: "10px",
+        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+        width: "100%",
+        maxWidth: "500px",
+      }}>
+        <h1 style={{ textAlign: "center", marginBottom: "20px" }}>Add Teacher</h1>
+        {message && (
           <div
             style={{
-              border: "1px solid #ccc",
-              padding: "10px",
-              borderRadius: "5px",
-              cursor: "pointer",
-              userSelect: "none",
+              color: message.type === "success" ? "green" : "red",
+              marginBottom: "10px",
+              textAlign: "center",
             }}
-            onClick={() => setDropdownOpen(!dropdownOpen)}
           >
-            {selectedSubjects.length > 0
-              ? selectedSubjects.map((sub) => sub.name).join(", ")
-              : "Select subjects"}
+            {message.text}
           </div>
-          {dropdownOpen && (
+        )}
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: "10px" }}>
+            <label>Teacher ID:</label>
+            <input
+              type="text"
+              name="id"
+              value={teacher.id}
+              onChange={handleChange}
+              required
+              style={{ width: "100%", padding: "8px", marginTop: "5px" }}
+            />
+          </div>
+          <div style={{ marginBottom: "10px" }}>
+            <label>Name:</label>
+            <input
+              type="text"
+              name="name"
+              value={teacher.name}
+              onChange={handleChange}
+              required
+              style={{ width: "100%", padding: "8px", marginTop: "5px" }}
+            />
+          </div>
+          <div style={{ marginBottom: "10px" }}>
+            <label>Academic Number:</label>
+            <input
+              type="text"
+              name="academicNumber"
+              value={teacher.academicNumber}
+              onChange={handleChange}
+              required
+              style={{ width: "100%", padding: "8px", marginTop: "5px" }}
+            />
+          </div>
+          <div style={{ marginBottom: "10px", position: "relative" }}>
+            <label>Subjects:</label>
             <div
               style={{
-                position: "absolute",
-                top: "100%",
-                left: 0,
-                width: "100%",
                 border: "1px solid #ccc",
-                backgroundColor: "black",
-                zIndex: 1000,
-                maxHeight: "200px",
-                overflowY: "scroll",
+                padding: "10px",
+                borderRadius: "5px",
+                cursor: "pointer",
+                userSelect: "none",
               }}
+              onClick={() => setDropdownOpen(!dropdownOpen)}
             >
-              {subjects.map((subject) => (
-                <label
-                  key={subject.id}
-                  style={{
-                    display: "block",
-                    padding: "5px 10px",
-                    cursor: "pointer",
-                  }}
-                >
-                  <input
-                    type="checkbox"
-                    value={subject.id}
-                    checked={selectedSubjects.some(
-                      (sub) => sub.id === subject.id
-                    )}
-                    onChange={() => handleSubjectToggle(subject)}
-                    style={{ marginRight: "10px" }}
-                  />
-                  {subject.name}
-                </label>
-              ))}
+              {selectedSubjects.length > 0
+                ? selectedSubjects.map((sub) => sub.name).join(", ")
+                : "Select subjects"}
             </div>
-          )}
-        </div>
-        <button type="submit" style={{ padding: "10px 20px", fontSize: "16px" }}>
-          Add Teacher
-        </button>
-      </form>
+            {dropdownOpen && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "100%",
+                  left: 0,
+                  width: "100%",
+                  border: "1px solid #ccc",
+                  backgroundColor: "#fff",
+                  zIndex: 1000,
+                  maxHeight: "200px",
+                  overflowY: "scroll",
+                }}
+              >
+                {subjects.map((subject) => (
+                  <label
+                    key={subject.id}
+                    style={{
+                      display: "block",
+                      padding: "5px 10px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      value={subject.id}
+                      checked={selectedSubjects.some(
+                        (sub) => sub.id === subject.id
+                      )}
+                      onChange={() => handleSubjectToggle(subject)}
+                      style={{ marginRight: "10px" }}
+                    />
+                    {subject.name}
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+          <button
+            type="submit"
+            style={{
+              width: "100%",
+              padding: "10px 20px",
+              fontSize: "16px",
+              backgroundColor: "#2f3e46",
+              color: "white",
+              borderRadius: "5px",
+              cursor: "pointer",
+              border: "none",
+              transition: "background-color 0.3s",
+            }}
+            onMouseEnter={(e) => (e.target.style.backgroundColor = "#345b63")}
+            onMouseLeave={(e) => (e.target.style.backgroundColor = "#22333b")}
+          >
+            Add Teacher
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
