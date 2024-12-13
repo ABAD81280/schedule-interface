@@ -176,7 +176,7 @@ const AddTeacher = () => {
                   left: 0,
                   width: "100%",
                   border: "1px solid #ccc",
-                  backgroundColor: "#fff",
+                  backgroundColor: "#001219",
                   zIndex: 1000,
                   maxHeight: "200px",
                   overflowY: "scroll",
