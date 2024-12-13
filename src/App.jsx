@@ -5,7 +5,10 @@ import AddSubject from "./AddSubject.jsx"; // صفحة إضافة مادة
 import AddTeacher from "./AddTeacher.jsx"; // صفحة إضافة معلم
 import CreateSchedules from "./CreateSchedules.jsx";
 import AddClassroom from "./AddClassroom.jsx";
-
+import StudantInf from "./StudantInf.jsx"
+import TeacherInf from "./TeacherInf.jsx"
+import SubjectInf from "./SubjectInf.jsx"
+import ClassroomInf from "./ClassroomInf.jsx"
 const App = () => {
   return (
     <Router>
@@ -43,6 +46,10 @@ const App = () => {
               { path: "/add-subject", label: "Add Subject" },
               { path: "/create-schedules", label: "Create Schedules" },
               { path: "/add-classroom", label: "Add Classroom" },
+              { path: "/studant-inf", label: "Studant Inf" },
+              { path: "/teacher-inf", label: "Teacher Inf" },
+              { path: "/subject-inf", label: "Subject Inf" },
+              { path: "/classroom-inf", label: "Classroom Inf" },
             ].map((link, index) => (
               <li key={index}>
                 <Link
@@ -88,6 +95,10 @@ const App = () => {
             <Route path="/add-student" element={<AddStudent />} />
             <Route path="/add-subject" element={<AddSubject />} />
             <Route path="/add-classroom" element={<AddClassroom />} />
+            <Route path="/studant-inf" element={<StudantInf />} />
+            <Route path="/teacher-inf" element={<TeacherInf />} />
+            <Route path="/subject-inf" element={<SubjectInf />} />
+            <Route path="/classroom-inf" element={<ClassroomInf />} />
           </Routes>
         </div>
       </div>
