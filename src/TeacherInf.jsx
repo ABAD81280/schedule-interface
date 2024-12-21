@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 const TeacherInf = () => {
   const [teachers, setTeachers] = useState([]);
@@ -10,9 +10,10 @@ const TeacherInf = () => {
   const [showModal, setShowModal] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [message, setMessage] = useState("");
+  const [searchValue, setSearchValue] = useState("");
+  const [filteredTeachers, setFilteredTeachers] = useState([]);
   const API_URL = "https://schedule-api-22-3050f7fc0fc1.herokuapp.com";
 
-  // Fetch teachers and subjects data
   useEffect(() => {
     fetchTeachers();
     fetchSubjects();
@@ -22,6 +23,7 @@ const TeacherInf = () => {
     try {
       const response = await axios.get(`${API_URL}/get-teachers`);
       setTeachers(response.data.teachers);
+      setFilteredTeachers(response.data.teachers); // Initialize filtered list
     } catch (error) {
       console.error("Error fetching teachers:", error);
     }
@@ -36,7 +38,15 @@ const TeacherInf = () => {
     }
   };
 
-  // Open the modal to edit teacher data
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearchValue(value);
+    const filtered = teachers.filter((teacher) =>
+      teacher.academicNumber?.toString().includes(value)
+    );
+    setFilteredTeachers(filtered);
+  };
+
   const handleEdit = (teacher) => {
     setSelectedTeacher(teacher);
     setEditData(teacher);
@@ -48,33 +58,37 @@ const TeacherInf = () => {
     setShowModal(true);
   };
 
-  // Update teacher data
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
       const updatedTeacher = {
         ...editData,
-        subjects: selectedSubjects.map((subject) => Number(subject.id)), // تحويل المواد إلى أرقام
+        subjects: selectedSubjects.map((subject) => Number(subject.id)),
       };
 
-      const response = await axios.put(`${API_URL}/update-teacher/${selectedTeacher.id}`, updatedTeacher);
+      const response = await axios.put(
+        `${API_URL}/update-teacher/${selectedTeacher.id}`,
+        updatedTeacher
+      );
       setMessage(response.data.message);
       setShowModal(false);
-      fetchTeachers(); // Refresh teacher list
+      fetchTeachers();
     } catch (error) {
       console.error("Error updating teacher:", error);
       setMessage("Failed to update teacher.");
     }
   };
 
-  // Delete a teacher
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this teacher?")) {
       try {
         const response = await axios.delete(`${API_URL}/delete-teacher/${id}`);
         if (response.data.success) {
           setMessage("Teacher deleted successfully.");
-          setTeachers(teachers.filter((teacher) => teacher.id !== id)); // Update local teacher list
+          setTeachers(teachers.filter((teacher) => teacher.id !== id));
+          setFilteredTeachers(
+            filteredTeachers.filter((teacher) => teacher.id !== id)
+          );
         } else {
           setMessage("Failed to delete teacher.");
         }
@@ -85,7 +99,6 @@ const TeacherInf = () => {
     }
   };
 
-  // Handle subject selection
   const handleSubjectToggle = (subject) => {
     setSelectedSubjects((prev) => {
       if (prev.find((sub) => sub.id === subject.id)) {
@@ -100,7 +113,18 @@ const TeacherInf = () => {
     <div style={{ padding: "20px" }}>
       <h1>Teachers List</h1>
       {message && <p style={{ color: "green" }}>{message}</p>}
-
+      <input
+        type="text"
+        placeholder="Search by Academic Number"
+        value={searchValue}
+        onChange={handleSearch}
+        style={{
+          padding: "8px",
+          marginBottom: "10px",
+          width: "100%",
+          boxSizing: "border-box",
+        }}
+      />
       <table border="1" style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr>
@@ -112,14 +136,16 @@ const TeacherInf = () => {
           </tr>
         </thead>
         <tbody>
-          {teachers.map((teacher) => (
+          {filteredTeachers.map((teacher) => (
             <tr key={teacher.id}>
               <td>{teacher.id}</td>
               <td>{teacher.name}</td>
               <td>{teacher.academicNumber}</td>
               <td>
                 {teacher.subjects
-                  ?.map((id) => subjects.find((subject) => subject.id === id)?.name)
+                  ?.map((id) =>
+                    subjects.find((subject) => subject.id === id)?.name
+                  )
                   .join(", ") || "N/A"}
               </td>
               <td>
@@ -131,7 +157,6 @@ const TeacherInf = () => {
         </tbody>
       </table>
 
-      {/* Edit modal */}
       {showModal && (
         <div
           style={{
@@ -151,7 +176,9 @@ const TeacherInf = () => {
               <input
                 type="text"
                 value={editData.name}
-                onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+                onChange={(e) =>
+                  setEditData({ ...editData, name: e.target.value })
+                }
                 required
               />
             </div>
@@ -160,7 +187,9 @@ const TeacherInf = () => {
               <input
                 type="text"
                 value={editData.academicNumber}
-                onChange={(e) => setEditData({ ...editData, academicNumber: e.target.value })}
+                onChange={(e) =>
+                  setEditData({ ...editData, academicNumber: e.target.value })
+                }
                 required
               />
             </div>
@@ -218,8 +247,12 @@ const TeacherInf = () => {
                 </div>
               )}
             </div>
-            <button type="submit" style={{ marginRight: "10px" }}>Save</button>
-            <button type="button" onClick={() => setShowModal(false)}>Cancel</button>
+            <button type="submit" style={{ marginRight: "10px" }}>
+              Save
+            </button>
+            <button type="button" onClick={() => setShowModal(false)}>
+              Cancel
+            </button>
           </form>
         </div>
       )}

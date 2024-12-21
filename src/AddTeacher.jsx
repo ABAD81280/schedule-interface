@@ -90,22 +90,8 @@ const AddTeacher = () => {
   };
 
   return (
-    <div style={{
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      minHeight: "100vh",
-      padding: "20px",
-      backgroundColor: "#2f3e46",
-    }}>
-      <div style={{
-        backgroundColor: "#2f3e46",
-        padding: "20px",
-        borderRadius: "10px",
-        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-        width: "100%",
-        maxWidth: "500px",
-      }}>
+    <div>
+      <div>
         <h1 style={{ textAlign: "center", marginBottom: "20px" }}>Add Teacher</h1>
         {message && (
           <div

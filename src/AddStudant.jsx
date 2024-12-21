@@ -1,27 +1,27 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import * as XLSX from "xlsx";
 
-const AddStudent = () =>  {
-  const API_URL ="https://schedule-api-22-3050f7fc0fc1.herokuapp.com"
+const AddStudent = () => {
+  const API_URL = "https://schedule-api-22-3050f7fc0fc1.herokuapp.com";
   const [student, setStudent] = useState({
     id: "",
     name: "",
     academicNumber: "",
     subjects: [],
   });
-  const [subjects, setSubjects] = useState([]); // قائمة المواد
-  const [selectedSubjects, setSelectedSubjects] = useState([]); // المواد المختارة
+  const [subjects, setSubjects] = useState([]);
+  const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [message, setMessage] = useState(null);
-  const [dropdownOpen, setDropdownOpen] = useState(false); // حالة القائمة المنسدلة
+  const [dropdownOpen, setDropdownOpen] = useState(false); // هنا تعريف dropdownOpen
 
   useEffect(() => {
-    // Fetch subjects from the API
     const fetchSubjects = async () => {
       try {
-        const response = await axios.get(`${API_URL}/get-subjects`
-          
-        );
-        setSubjects(response.data.subjects || []); // تخزين قائمة المواد
+        console.log("Fetching subjects...");
+        const response = await axios.get(`${API_URL}/get-subjects`);
+        console.log("Subjects fetched:", response.data.subjects);
+        setSubjects(response.data.subjects || []);
       } catch (error) {
         console.error("Error fetching subjects:", error);
         setMessage({
@@ -36,48 +36,27 @@ const AddStudent = () =>  {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    console.log(`Updating field ${name} with value ${value}`);
     setStudent((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubjectToggle = (subject) => {
-    setSelectedSubjects((prev) => {
-      if (prev.find((sub) => sub.id === subject.id)) {
-        // إذا كانت المادة موجودة، أزلها
-        return prev.filter((sub) => sub.id !== subject.id);
-      } else {
-        // إذا لم تكن المادة موجودة، أضفها
-        return [...prev, subject];
-      }
-    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Submitting student:", student);
     try {
-      if (selectedSubjects.length === 0) {
-        setMessage({
-          type: "error",
-          text: "Please select at least one subject.",
-        });
-        return;
-      }
-
       const studentData = {
         ...student,
-        subjects: selectedSubjects.map((subject) => Number(subject.id)), // تحويل المواد إلى أرقام
+        subjects: selectedSubjects.map((sub) => sub.id), // المواد المختارة يدويًا
       };
 
-      const response = await axios.post(
-        `${API_URL}/add-student`,
-        studentData
-      );
+      const response = await axios.post(`${API_URL}/add-student`, studentData);
+      console.log("Student added:", response.data);
 
       setMessage({
         type: "success",
         text: `Student added successfully! ID: ${response.data.student.id}`,
       });
 
-      // إعادة تعيين الحقول
       setStudent({
         id: "",
         name: "",
@@ -90,6 +69,72 @@ const AddStudent = () =>  {
       setMessage({
         type: "error",
         text: "Failed to add student. Please try again.",
+      });
+    }
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    console.log("File selected:", file);
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      const data = new Uint8Array(event.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const rows = XLSX.utils.sheet_to_json(sheet);
+      console.log("Parsed rows from Excel:", rows);
+
+      const filteredStudents = rows
+        .filter(
+          (row) =>
+            row["طريقة التدريب"] === "صباحي" && row["المرحلة"] === "دبلوم"
+        )
+        .map((row) => ({
+          id: row["رقم السجل المدني"],
+          name: row["الاسم عربي"],
+          academicNumber: row["الرقم الاكاديمي"],
+          subjects: [11, 12, 13, 14, 15],
+        }));
+      console.log("Filtered students:", filteredStudents);
+
+      uploadBulkStudents(filteredStudents);
+    };
+
+    reader.readAsArrayBuffer(file);
+  };
+
+  const uploadBulkStudents = async (students) => {
+    try {
+      console.log("Uploading students one by one...");
+      let successCount = 0;
+      let failCount = 0;
+
+      for (const student of students) {
+        try {
+          console.log("Sending student:", student); // تتبع البيانات المرسلة
+          const response = await axios.post(`${API_URL}/add-student`, student);
+          console.log(`Student added successfully: ${response.data.student.id}`);
+          successCount++;
+        } catch (error) {
+          console.error(
+            `Failed to add student: ${student.id}`,
+            error.response?.data || error.message
+          );
+          failCount++;
+        }
+      }
+
+      setMessage({
+        type: "success",
+        text: `${successCount} students added successfully! ${failCount} failed.`,
+      });
+    } catch (error) {
+      console.error("Error uploading students:", error);
+      setMessage({
+        type: "error",
+        text: "Failed to upload students. Please try again.",
       });
     }
   };
@@ -162,7 +207,7 @@ const AddStudent = () =>  {
                 left: 0,
                 width: "100%",
                 border: "1px solid #ccc",
-                backgroundColor: "black",
+                backgroundColor: "#001219",
                 zIndex: 1000,
                 maxHeight: "200px",
                 overflowY: "scroll",
@@ -180,10 +225,14 @@ const AddStudent = () =>  {
                   <input
                     type="checkbox"
                     value={subject.id}
-                    checked={selectedSubjects.some(
-                      (sub) => sub.id === subject.id
-                    )}
-                    onChange={() => handleSubjectToggle(subject)}
+                    checked={selectedSubjects.some((sub) => sub.id === subject.id)}
+                    onChange={() =>
+                      setSelectedSubjects((prev) =>
+                        prev.find((sub) => sub.id === subject.id)
+                          ? prev.filter((sub) => sub.id !== subject.id)
+                          : [...prev, subject]
+                      )
+                    }
                     style={{ marginRight: "10px" }}
                   />
                   {subject.name}
@@ -196,6 +245,11 @@ const AddStudent = () =>  {
           Add Student
         </button>
       </form>
+
+      <div style={{ marginTop: "20px" }}>
+        <label>Upload Excel File:</label>
+        <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
+      </div>
     </div>
   );
 };
